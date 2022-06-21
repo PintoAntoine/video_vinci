@@ -35,7 +35,7 @@ st.markdown("""
 df = pd.read_parquet('data/df_video.parquet')
 
 image = Image.open('data/logo_vinci.png')
-col1, col2, col3, col4 = st.columns([5,2,4,3])
+col1, col2, col3 = st.columns([5,7,4])
 
 with col1:
     st.markdown('<p style="font-family:Calibri; color:#1C5D84; font-size: 60px;">Smart Data Hub</p>', unsafe_allow_html=True)
@@ -43,8 +43,6 @@ with col2:
     st.write("")
 with col3:
     st.image(image, width =300)
-with col4:
-    st.write("")
 
 
 # Side bar
