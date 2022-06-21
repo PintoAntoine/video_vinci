@@ -84,7 +84,6 @@ fig2.update_traces(patch={"line": {"dash": 'dot'}})
 
 fig_final = go.Figure()               
 fig_final.add_traces(data=fig1.data + fig2.data)
-fig_final.add_annotation(x="2022-04-25", y=8.1, text="!", showarrow=False, font=dict(size=20, color="white"))
 fig_final.update_layout(title=f'Airport {airport} | SPP forecast',
                         autosize=False,
                         width=1400, height=300,
@@ -94,6 +93,6 @@ fig_final.update_layout(title=f'Airport {airport} | SPP forecast',
                         title_font_color="#1C5D84")
 fig_final.update(layout_yaxis_range = [0, 10])
 
-fig_final.add_annotation(x="2022-05-01", y=8.94, text="EZJ moved from T2 to T1", showarrow=True, font=dict(size=20, color="#DC152A"), bgcolor='#FACACF', arrowcolor='#DC152A')
+fig_final.add_annotation(x="2022-05-01", y=8.94, text="EZY moved from T2 to T1", showarrow=True, font=dict(size=20, color="#DC152A"), bgcolor='#FACACF', arrowcolor='#DC152A')
 
 st.plotly_chart(fig_final)
