@@ -33,12 +33,13 @@ st.markdown("""
 
 # Importing data
 df = pd.read_parquet('data/df_video.parquet')
+df_airl = pd.read_parquet('data/df_airline.parquet')
 
 image = Image.open('data/logo_vinci.png')
 col1, col2, col3 = st.columns([5,3,4])
 
 with col1:
-    st.markdown('<p style="font-family:Calibri; color:#1C5D84; font-size: 60px;">Smart Data Hub</p>', unsafe_allow_html=True)
+    st.markdown('<p style="font-family:Calibri; color:#1C5D84; font-size: 60px;">Smart Data Hub / AI</p>', unsafe_allow_html=True)
 with col2:
     st.write("")
 with col3:
@@ -51,7 +52,7 @@ airport = st.sidebar.selectbox("Airport", df.homeAirportCode.unique().tolist())
 jet_fuel = st.sidebar.slider('Jet Fuel Price', 100, 1000, 482, format="%d $")
 add_factor = st.sidebar.multiselect( "Additional Factors", ['None', 'Influencers Campaign', 'Promo Campaign', 'Weather Hazard'])
 pred = st.sidebar.button('Predict')
-sub_object = st.sidebar.radio("Object to display", ('Features', 'SPP forecast'))
+sub_object = st.sidebar.radio("", ('Features', 'SPP forecast', 'Airlines', 'Routes'))
 
 # Displaying a variable according to the chosen parameters
 var_pax, var_SPP = "pax_pred", "SPP_pred"
@@ -127,5 +128,63 @@ elif sub_object == 'SPP forecast':
     fig_final.add_annotation(x="2022-05-01", y=8.94, text="EZY moved from T2 to T1", showarrow=True, font=dict(size=20, color="#DC152A"), bgcolor='#FACACF', arrowcolor='#DC152A')
 
     st.plotly_chart(fig_final)
+elif sub_object == 'Airlines':
+    airline = st.sidebar.selectbox("Airline Code", df_airl.airlineCode.unique().tolist())
+    df_ai = (df_airl
+            .query('airlineCode == @airline')
+            .groupby('movementDate')
+            .agg(pax = ('pax', 'sum'),
+                pax_pred = ('pax_pred', 'sum')).reset_index()
+            .replace(0, np.nan)
+            )
 
-            
+    if (pred | (add_factor == ["Promo Campaign"])) & (jet_fuel > 500):
+        df_ai.loc[df_ai.movementDate > "2022-06-25", 'pax_pred'] = 0.9*df_ai.loc[df_ai.movementDate > "2022-06-25", 'pax_pred']
+
+    fig1 = px.line(df_ai,  x="movementDate", y=['pax'], color_discrete_sequence=['#1C5D84'])
+    fig2 = px.line(df_ai, x="movementDate", y=['pax_pred'],
+                color_discrete_sequence=['red', 'blue', 'green'])
+    fig2.update_traces(patch={"line": {"dash": 'dot'}})
+
+    fig_final = go.Figure()               
+    fig_final.add_traces(data=fig1.data + fig2.data)
+
+    fig_final.update_layout(title=f'Airline {airline} (for airport LIS) | Pax forecast',
+                            autosize=False,
+                            width=1040, height=300,
+                            margin=dict(l=0, r=0, b=0, t=40),
+                            showlegend=False,
+                            font_color="#1C5D84",
+                            title_font_color="#1C5D84")
+    fig_final.update(layout_xaxis_range = ["2022-02-01", "2022-09-15"])
+    st.plotly_chart(fig_final)
+elif sub_object == 'Routes':
+    route = st.sidebar.selectbox("Route", df_airl.route.unique().tolist())
+    df_ai = (df_airl
+            .query('route == @route')
+            .groupby('movementDate')
+            .agg(pax = ('pax', 'sum'),
+                pax_pred = ('pax_pred', 'sum')).reset_index()
+            .replace(0, np.nan)
+            )
+
+    if (pred | (add_factor == ["Promo Campaign"])) & (jet_fuel > 500):
+        df_ai.loc[df_ai.movementDate > "2022-06-25", 'pax_pred'] = 0.9*df_ai.loc[df_ai.movementDate > "2022-06-25", 'pax_pred']
+
+    fig1 = px.line(df_ai,  x="movementDate", y=['pax'], color_discrete_sequence=['#1C5D84'])
+    fig2 = px.line(df_ai, x="movementDate", y=['pax_pred'],
+                color_discrete_sequence=['red', 'blue', 'green'])
+    fig2.update_traces(patch={"line": {"dash": 'dot'}})
+
+    fig_final = go.Figure()               
+    fig_final.add_traces(data=fig1.data + fig2.data)
+
+    fig_final.update_layout(title=f'Route {route} | Pax forecast',
+                            autosize=False,
+                            width=1040, height=300,
+                            margin=dict(l=0, r=0, b=0, t=40),
+                            showlegend=False,
+                            font_color="#1C5D84",
+                            title_font_color="#1C5D84")
+    fig_final.update(layout_xaxis_range = ["2022-02-01", "2022-09-15"])
+    st.plotly_chart(fig_final)            
