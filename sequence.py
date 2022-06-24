@@ -47,7 +47,7 @@ with col3:
 
 # Side bar
 
-airport = st.sidebar.selectbox("Airport hello", df.homeAirportCode.unique().tolist())
+airport = st.sidebar.selectbox("Airport", df.homeAirportCode.unique().tolist())
 jet_fuel = st.sidebar.slider('Jet Fuel Price', 100, 1000, 482, format="%d $")
 add_factor = st.sidebar.multiselect( "Additional Factors", ['None', 'Influencers Campaign', 'Promo Campaign', 'Weather Hazard'])
 pred = st.sidebar.button('Predict')
